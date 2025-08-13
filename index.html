@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Surprise & Serendipity</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #a8edea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .feature-card:hover:before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            min-height: 200px;
+            display: none;
+            opacity: 0;
+        }
+
+        .content-area.active {
+            display: block;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .affirmation-text {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #feca57;
+        }
+
+        .personality-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            margin: 1rem auto;
+            display: block;
+            backdrop-filter: blur(10px);
+        }
+
+        .personality-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .personality-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .share-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating-particles" id="particles"></div>
+    <div class="container">
+        <div class="header">
+            <h1>✨ AI Serendipity ✨</h1>
+            <p>Discover daily surprises, random joy through the magic of AI</p>
+            <div style="margin: 2rem auto 0; max-width: 350px;">
+                <label for="languageSelect"
+                    style="font-size:1.1rem; color:#fff; margin-bottom:0.5rem; display:block;">Choose your
+                    language:</label>
+                <select id="languageSelect"
+                    style="width:100%; padding:0.7rem 1rem; border-radius:30px; font-size:1rem; background:rgba(255,255,255,0.2); color:#222; border:none; outline:none;">
+                    <!-- Options will be populated by JS -->
+                </select>
+            </div>
+        </div>
+<div class="container">
+        <div class="content-area" id="contentArea">
+            <div class="loading" id="loading" style="display:none;">
+                <div class="loading-spinner"></div>
+                <p>AI is crafting something magical for you...</p>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+        </div>
+
+
+        <div class="features-grid">
+
+            <div class="feature-card" data-feature="ascii-challenge">
+                <div class="feature-icon">🔡</div>
+                <h3 class="feature-title">ASCII Art Challenge</h3>
+                <p class="feature-description">Guess the picture from keyboard characters!</p>
+                <button class="btn" onclick="getAsciiChallenge()">Get ASCII Puzzle</button>
+            </div>
+
+
+
+            <div class="feature-card" data-feature="affirmation">
+                <div class="feature-icon">🌅</div>
+                <h3 class="feature-title">Daily AI Affirmation</h3>
+                <p class="feature-description">Start your day with a personalized, uplifting message generated just for
+                    you</p>
+                <button class="btn" onclick="getDailyAffirmation()">Get Today's Affirmation</button>
+            </div>
+
+            <div class="feature-card" data-feature="random-fun">
+                <div class="feature-icon">🎲</div>
+                <h3 class="feature-title">AI Random Fun</h3>
+                <p class="feature-description">Surprise yourself with jokes, compliments,or mind-bending mini
+                    art pieces</p>
+                <button class="btn" onclick="getRandomFun()">Surprise Me!</button>
+            </div>
+
+            <div class="feature-card" data-feature="riddle">
+                <div class="feature-icon">🧩</div>
+                <h3 class="feature-title">AI Riddle</h3>
+                <p class="feature-description">Get a fun riddle in your language. Try to guess before revealing the
+                    answer!</p>
+                <button class="btn" onclick="getRiddle()">Get Riddle</button>
+            </div>
+
+
+            <!-- <div class="feature-card" data-feature="personality">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title">Personality Insights</h3>
+                <p class="feature-description">Get quirky personality insights based on a single answer or choice</p>
+                <input type="text" class="personality-input" id="personalityInput"
+                    placeholder="Tell me one thing you love...">
+                <button class="btn" onclick="getPersonalityInsight()">Analyze Me</button>
+                <button class="btn share-btn" onclick="shareInsight()" style="display:none;"
+                    id="shareBtn">Share</button>
+            </div> -->
+        </div>
+
+
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 6 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize animations
+        function initAnimations() {
+            gsap.to('.header', { opacity: 1, y: 0, duration: 1, delay: 0.2 });
+            gsap.to('.feature-card', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                delay: 0.5,
+                ease: "back.out(1.7)"
+            });
+        }
+
+        // Show loading state
+        function showLoading() {
+            const contentArea = document.getElementById('contentArea');
+            const loading = document.getElementById('loading');
+            const resultContent = document.getElementById('resultContent');
+
+            contentArea.classList.add('active');
+            loading.style.display = 'block';
+            resultContent.innerHTML = '';
+        }
+
+        // Hide loading state
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'none';
+        }
+
+        // Show result
+        function showResult(content) {
+            hideLoading();
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = content;
+        }
+
+        // Configuration
+        const API_BASE_URL = 'http://localhost:8000/api';
+
+        // API helper function
+        async function callAPI(endpoint, data = null, method = 'GET') {
+            const url = `${API_BASE_URL}/${endpoint}`;
+
+            const config = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+
+            if (data && method === 'POST') {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, config);
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+
+                // Return fallback responses when API is unavailable
+                return getFallbackResponse(endpoint, data);
+            }
+        }
+
+        // Fallback responses when API is unavailable
+        function getFallbackResponse(endpoint, data) {
+            switch (endpoint) {
+                case 'daily-affirmation':
+                    return {
+                        affirmation: "Today is a canvas waiting for your unique brushstrokes. Every challenge you face is an opportunity to paint something beautiful. You have the power to create moments of joy, spread kindness, and make a difference. Your potential is limitless, and today is the perfect day to let it shine. ✨",
+                        visual_element: "🌟",
+                        date: new Date().toISOString().split('T')[0],
+                        mood_color: "#4ECDC4"
+                    };
+
+                case 'random-fun':
+                    const funTypes = [
+                        { type: 'joke', content: "Why don't scientists trust atoms? Because they make up everything! But don't worry, you're definitely real and absolutely awesome!", emoji: "😄" },
+                        { type: 'compliment', content: "You have this incredible ability to brighten someone's day just by being yourself. Your curiosity led you here, and that shows how wonderfully open-minded you are!", emoji: "💫" },
+                        { type: 'riddle', content: "I speak without a mouth and hear without ears. I'm everywhere and nowhere. What am I? (Answer: An echo!) Just like how your kindness echoes back to you!", emoji: "🔊" },
+                        { type: 'art', content: "Imagine a swirling galaxy of colors where purple thoughts dance with golden dreams, creating a symphony of possibility that only you can see!", emoji: "🎨" }
+                    ];
+                    return funTypes[Math.floor(Math.random() * funTypes.length)];
+
+                case 'personality-insight':
+                    return {
+                        insight: `Based on your response, you have the soul of an explorer! 🧭 You appreciate depth and beauty in the world around you. This suggests you're someone who finds magic in everyday moments and has a natural gift for inspiring others. You likely have a creative spirit that sees possibilities where others see obstacles.`,
+                        traits: ['Creative', 'Empathetic', 'Curious', 'Inspiring'],
+                        personality_type: 'The Mindful Dreamer',
+                        share_text: "I just discovered I'm a Mindful Dreamer! 🌟 What's your AI personality type?",
+                        confidence_score: 0.85
+                    };
+
+                default:
+                    throw new Error('Unknown endpoint');
+            }
+        }
+
+
+        // Supported languages from backend (keep in sync with main.py)
+        const SUPPORTED_LANGUAGES = {
+            "english": { name: "English", native_name: "English" },
+            "hindi": { name: "Hindi", native_name: "हिन्दी" },
+            "bengali": { name: "Bengali", native_name: "বাংলা" },
+            "telugu": { name: "Telugu", native_name: "తెలుగు" },
+            "marathi": { name: "Marathi", native_name: "मराठी" },
+            "tamil": { name: "Tamil", native_name: "தமிழ்" },
+            "gujarati": { name: "Gujarati", native_name: "ગુજરાતી" },
+            "kannada": { name: "Kannada", native_name: "ಕನ್ನಡ" },
+            "odia": { name: "Odia", native_name: "ଓଡ଼ିଆ" },
+            "punjabi": { name: "Punjabi", native_name: "ਪੰਜਾਬੀ" },
+            "assamese": { name: "Assamese", native_name: "অসমীয়া" },
+            "urdu": { name: "Urdu", native_name: "اردو" },
+            "malayalam": { name: "Malayalam", native_name: "മലയാളം" },
+            "nepali": { name: "Nepali", native_name: "नेपाली" },
+            "sanskrit": { name: "Sanskrit", native_name: "संस्कृत" }
+        };
+
+        // Populate language dropdown
+        function populateLanguageDropdown() {
+            const select = document.getElementById('languageSelect');
+            select.innerHTML = '';
+            Object.entries(SUPPORTED_LANGUAGES).forEach(([code, info]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = `${info.name} (${info.native_name})`;
+                select.appendChild(option);
+            });
+        }
+
+        function getSelectedLanguage() {
+            const select = document.getElementById('languageSelect');
+            return select ? select.value : 'english';
+        }
+
+        // Get daily affirmation
+        async function getDailyAffirmation() {
+            showLoading();
+            const language = getSelectedLanguage();
+            try {
+                const response = await callAPI('daily-affirmation', { language }, 'POST');
+                showResult(`
+                    <div class="affirmation-text" style="border-left-color: ${response.mood_color || '#feca57'}">
+                        ${response.visual_element} ${response.affirmation}
+                    </div>
+                    <p style="opacity: 0.8; margin-top: 1rem;">✨ This affirmation was crafted just for you on ${response.date || 'today'}! Save it and carry it with you today! 💝</p>
+                `);
+            } catch (error) {
+                showResult('<p>✨ Something magical went wrong, but here\'s a universal truth: You are amazing just as you are! 💫</p>');
+            }
+        }
+
+        // Get random fun content
+        async function getRandomFun() {
+            showLoading();
+            const language = getSelectedLanguage();
+            try {
+                const response = await callAPI('random-fun', { language }, 'POST');
+                showResult(`
+                    <div style="font-size: 1.2rem; margin-bottom: 1rem;">
+                        ${response.emoji} ${response.content}
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; font-size: 0.9rem; opacity: 0.8;">
+                        <strong>Type:</strong> ${response.type.charAt(0).toUpperCase() + response.type.slice(1)} ✨
+                    </div>
+                    <button class="btn" onclick="getRandomFun()" style="margin-top: 1rem;">
+                        Another Surprise! 🎲
+                    </button>
+                `);
+            } catch (error) {
+                showResult('<p>🎭 Here\'s some instant fun: You\'re reading this, which means you\'re awesome! Keep being curious! ✨</p>');
+            }
+        }
+
+        // riddle insight
+        async function getRiddle() {
+            showLoading();
+            const language = getSelectedLanguage();
+            try {
+                const response = await callAPI('riddle', { language }, 'POST');
+                showResult(`
+            <div style="font-size: 1.2rem; margin-bottom: 1rem;">
+                🧩 ${response.question}
+            </div>
+            <button class="btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">
+                Show Answer
+            </button>
+            <div style="display:none; margin-top:1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                ${response.answer}
+            </div>
+        `);
+            } catch (error) {
+                showResult('<p>🧩 Could not get a riddle right now, but here’s one: What has keys but can’t open locks? A piano! 🎹</p>');
+            }
+        }
+
+        // Get emoji challenge
+        async function getAsciiChallenge() {
+            showLoading();
+            const language = getSelectedLanguage();
+            try {
+                const response = await callAPI('ascii-challenge', { language }, 'POST');
+                showResult(`
+            <pre style="font-size:1rem; text-align:center; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 10px;">
+${response.ascii_art}
+            </pre>
+            <button class="btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">
+                Show Answer
+            </button>
+            <div style="display:none; margin-top:1rem; text-align:center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                ${response.answer}
+            </div>
+        `);
+            } catch (error) {
+                showResult('<p>🔡 Could not load ASCII art right now, but here’s one:<br><pre>^_^</pre> (Answer: Smile)</p>');
+            }
+        }
+
+
+
+        // Get personality insight
+        async function getPersonalityInsight() {
+            const input = document.getElementById('personalityInput');
+            const shareBtn = document.getElementById('shareBtn');
+            if (!input.value.trim()) {
+                input.focus();
+                input.placeholder = "Please share something you love first! 💕";
+                gsap.to(input, {
+                    borderColor: '#ff6b6b',
+                    duration: 0.3,
+                    yoyo: true,
+                    repeat: 1
+                });
+                return;
+            }
+            showLoading();
+            const language = getSelectedLanguage();
+            try {
+                const response = await callAPI('personality-insight', {
+                    input: input.value.trim(),
+                    language
+                }, 'POST');
+                showResult(`
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #feca57; margin-bottom: 1rem; font-size: 1.4rem;">
+                            🔮 Your Personality Type: ${response.personality_type}
+                        </h4>
+                        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1rem;">${response.insight}</p>
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                            <strong style="color: #a8edea;">Your key traits:</strong><br>
+                            <div style="margin-top: 0.5rem;">
+                                ${response.traits.map(trait => `<span style="background: linear-gradient(45deg, #ff6b6b, #feca57); padding: 0.4rem 1rem; border-radius: 20px; margin: 0.3rem; display: inline-block; font-weight: 500;">${trait}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div style="font-size: 0.9rem; opacity: 0.8; text-align: center;">
+                            Confidence Score: ${Math.round((response.confidence_score || 0.85) * 100)}% ✨
+                        </div>
+                    </div>
+                `);
+                shareBtn.style.display = 'inline-block';
+                shareBtn.onclick = () => shareInsight(response.share_text);
+                window.lastPersonalityResult = response;
+            } catch (error) {
+                console.error('Personality insight error:', error);
+                showResult('<p>🔮 Your personality shines through in ways that are uniquely you! Keep exploring and discovering! ✨</p>');
+            }
+        }
+
+        // Share insight
+        function shareInsight(text = "I just got an amazing AI personality insight! ✨ Check out AI Serendipity!") {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AI Serendipity - Personality Insight',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text + ' ' + window.location.href);
+                alert('✨ Copied to clipboard! Share your insight with friends!');
+            }
+        }
+
+        // Initialize the app
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initAnimations();
+            populateLanguageDropdown();
+            // Add some interactive sparkle to feature cards
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card, { scale: 1.02, duration: 0.3, ease: "power2.out" });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, { scale: 1, duration: 0.3, ease: "power2.out" });
+                });
+            });
+        });
+
+        // Add some keyboard shortcuts for fun
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.id === 'personalityInput') {
+                getPersonalityInsight();
+            }
+            if (e.key === ' ' && e.ctrlKey) {
+                e.preventDefault();
+                getRandomFun();
+            }
+        });
+    </script>
+</body>
+
+</html>
